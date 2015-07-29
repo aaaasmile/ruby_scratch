@@ -82,7 +82,7 @@ class GPorterConvGpx
     puts "Percorsi km #{km_tot}"
     out_fname = File.join(File.dirname(fname), "garmin_#{File.basename(fname)}")
     puts "Create a new file without speed item #{out_fname}"
-    #File.open(out_fname, 'w'){|outfile| result.each{ |item| outfile << item } }
+    File.open(out_fname, 'w'){|outfile| result.each{ |item| outfile << item } }
     puts "File created OK - original count #{line_count}, now #{result.size}"
   end
   
@@ -95,7 +95,7 @@ if $0 == __FILE__
   # Purtroppo non funziona nell'import in garmin connect, anche se si fa il downlad 
   # da garmin connect mi da lo stesso file
   gp = GPorterConvGpx.new
-  fname = 'E:\documenti\Tracce_Gps\export_2014-09-17 20-26.gpx'
+  fname = 'E:\documenti\Tracce_Gps\export_2014-11-01 16-17.gpx'
   gp.remove_speed(fname)
   #gp.parse_gpx(fname)
 end
