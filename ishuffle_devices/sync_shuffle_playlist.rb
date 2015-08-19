@@ -3,6 +3,7 @@
 # To sync files, use gtkpod instead of the rhythmbox because dragging files between two devices
 # does not works.
 # Create a list in gtkpod with Tools->Export Tracks -> export to playlist
+# (c)2015
 
 require 'rubygems'
 
