@@ -1,11 +1,14 @@
-# show how two play list differ
-# Play list are created using gtkpod on two different ishuffle devices
+# Show differences between two play-lists.
+# Play-lists are created using gtkpod with two different ishuffle devices (green and silver)
+# To sync files, use gtkpod instead of the rhythmbox because dragging files between two devices
+# does not works.
+# Create a list in gtkpod with Tools->Export Tracks -> export to playlist
 
 require 'rubygems'
 
 
-
 class PlayListDifference
+
   def show_diff(master, slave, options)
     count_item = 0
     slave_name = options.has_key?(:slave_name) ? options[:slave_name] : "slave"
@@ -64,8 +67,8 @@ end
 
 
 if $0 == __FILE__
-  silver_file = 'D:\Biblio\ishuffle\ishuffle_devices\silver_playlist'
-  green_file = 'D:\Biblio\ishuffle\ishuffle_devices\green_playlist'
+  silver_file = 'silver_playlist_2015_08_19'
+  green_file = 'green_playlist_2015_08_19'
   diff = PlayListDifference.new
   
   diff.show_diff(green_file, silver_file, {:print_partial => false, :slave_name => "silver"})
