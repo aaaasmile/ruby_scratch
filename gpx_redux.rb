@@ -62,7 +62,7 @@ class GpxReducer
     @header = header
   end
   
-  def gpx_splitter(num_of_tracks)
+  def gpx_splitter(num_of_tracks, out_dir)
     if @all_points.size == 0
       puts "Call firts points_counter() to get points information. No points recognized"
       return
@@ -85,7 +85,7 @@ class GpxReducer
     
     ix_track = 1
     tracks.each do |track|
-      trackname = "Track#{ix_track}.gpx"
+      trackname = File.join(out_dir, "Track#{ix_track}.gpx")
       complete_track = []
       complete_track << @header
       complete_track << track
@@ -99,7 +99,7 @@ class GpxReducer
     
   end
   
-  def reduce_half(fname)
+  def reduce_half(fname, out_dir)
     arr_res = []
     state = :init_point
     count_lines = 0
@@ -137,7 +137,7 @@ class GpxReducer
     end
     jumped_points = (count_lines - arr_res.size) / 4
     puts "Lines on file now #{arr_res.size}, original lines #{count_lines}, jumped points #{jumped_points}"
-    res_fname = 'out_reduced.gpx'
+    res_fname = File.join(out_dir, 'out_reduced.gpx')
     File.open(res_fname, 'w'){|f| arr_res.each{|x| f << x}}
     puts "File created #{res_fname}"
   end
@@ -150,14 +150,15 @@ if $0 == __FILE__
   # Usa questo script per ridurre una traccia della metà e poi magari farne uno split.
   # Con Canmore è meglio avere dei files con intorno 700 punti massimo, per aprirli e scalarli
   # in tempi ragionevoli. I nomi dei files vanno anche cambiati manualmente usando notepad.
-  # Usa qualcosa tipo 1- desc traccia1 e così via. Sono tre i punti nel file xml da cambiare, dove compare il tag <name>
+  # Usa qualcosa tipo 1- desc traccia1 e così via. Basta cambiare il tag <trk><name> (1 punto)
   # Usa poi Canway Planner e importa tutte le traccie in un colpo prima di sincronizzare col device.
   # Se fai degli errori, chiudi Canway Planner e ricomincia. Le traccie sul device vanno cancellate manulamente
   # usando file explorer nel subfolder trips.
   # Con il file del Dirndltal Extrem scaricato da gpsies, aveva 1924 punti che ho splitato in 3 files da 641 punti.
   gr = GpxReducer.new
-  fname = 'E:\corsa\2015\DirndtalExtreme\OfficialGpsIes\DirndltalExtremUltratrail_gpsies.gpx'
-  #gr.reduce_half(fname)
+  fname = 'E:\corsa\2015\Adamello\work\out_reduced.gpx'
+  out_dir = 'E:\corsa\2015\Adamello\work'
+  #gr.reduce_half(fname, out_dir)
   gr.points_counter(fname)
-  #gr.gpx_splitter(3)
+  gr.gpx_splitter(5, out_dir)
 end
