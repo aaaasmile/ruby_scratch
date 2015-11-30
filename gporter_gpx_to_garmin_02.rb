@@ -95,7 +95,7 @@ if $0 == __FILE__
   # Purtroppo non funziona nell'import in garmin connect, anche se si fa il downlad 
   # da garmin connect mi da lo stesso file
   gp = GPorterConvGpx.new
-  fname = 'E:\documenti\Tracce_Gps\export_2014-11-01 16-17.gpx'
+  fname = 'E:\documenti\Tracce_Gps\export_2015-10-18 09-08.gpx'
   gp.remove_speed(fname)
   #gp.parse_gpx(fname)
 end
