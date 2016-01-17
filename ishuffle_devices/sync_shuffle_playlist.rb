@@ -1,9 +1,8 @@
-# Show differences between two play-lists.
-# Play-lists are created using gtkpod with two different ishuffle devices (green and silver)
-# To sync files, use gtkpod instead of the rhythmbox because dragging files between two devices
+# Show differences between two playlists.
+# Playlists are created using gtkpod with two different ishuffle devices (green and silver)
+# In order to sync files use gtkpod instead of the rhythmbox, because dragging files between two devices
 # does not works.
-# Create a list in gtkpod with Tools->Export Tracks -> export to playlist
-# (c)2015
+# Create a list in gtkpod using Tools->Export Tracks -> export to playlist
 
 require 'rubygems'
 

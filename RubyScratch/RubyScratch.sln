@@ -21,6 +21,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "ruby_scratch", "..\", "{E39
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "50192"
+		SlnRelativePath = "..\..\ruby_scratch\"
 	EndProjectSection
 EndProject
 Global
