@@ -71,6 +71,10 @@ class GpxReducer
       puts "Nothing to do, use the souce track if you want"
     end
     
+    if !File.directory?(out_dir)
+    	Dir.mkdir(out_dir)
+    end
+    
     points_per_track = @all_points.size / num_of_tracks
     tracks = []
     in_track_points = []
@@ -156,9 +160,9 @@ if $0 == __FILE__
   # usando file explorer nel subfolder trips.
   # Con il file del Dirndltal Extrem scaricato da gpsies, aveva 1924 punti che ho splitato in 3 files da 641 punti.
   gr = GpxReducer.new
-  fname = 'E:\corsa\2015\Adamello\work\out_reduced.gpx'
-  out_dir = 'E:\corsa\2015\Adamello\work'
+  fname = 'E:\corsa\2016\Burgerland_Tour\24StundenBurgenlandExtremTour2015GpsTrack.gpx'
+  out_dir = 'E:\corsa\2016\Burgerland_Tour\gpx'
   #gr.reduce_half(fname, out_dir)
   gr.points_counter(fname)
-  gr.gpx_splitter(5, out_dir)
+  gr.gpx_splitter(2, out_dir)
 end
