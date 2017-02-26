@@ -6,6 +6,7 @@ class EtfQuoteFinanzNet
   def initialize
     @agent = Mechanize::Mechanize.new
     @agent.user_agent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1"
+    @picked_quote = {}
   end
   
   def pick_from_complete_url(url)
@@ -13,6 +14,7 @@ class EtfQuoteFinanzNet
     #puts page.body
     page.search('body//div//div//div//div//div//div//div//div//div//div').set('class','col-xs-4 col-sm-4 text-sm-right text-nowrap').each do |element|
       p element.inner_html
+      # non è utilizzabile in quanto manca Xetra, mentre usa Stuggard e NAV
     end
   end
   
@@ -46,6 +48,18 @@ class EtfQuoteFinanzNet
       end
     end
     p data_found
+    @picked_quote[data_found[0]] = data_found
+  end
+  
+  def write_quotes(fname)
+    File.open(fname,'w') do |file|
+      @picked_quote.each do |k,v|
+        file.write(v.join(';'))
+        file.write("\n")
+      end
+    end
+    puts "File written #{fname}"
+    p @picked_quote
   end
   
 end
@@ -53,10 +67,19 @@ end
 
 
 if $0 == __FILE__
-  url = 'http://www.finanzen.net/etf/db_x-trackers_DBLCI_-_OY_BALANCED_UCITS_ETF_EUR_1C'
-  url_easy = 'http://www.easycharts.at/index.asp?action=securities_securityDetails&id=tts-11057070&menuId=1&pathName=DB%20X-TR.DBLCI-OY%20BAL.%201C'
-  picker = EtfQuoteFinanzNet.new
+  #url = 'http://www.finanzen.net/etf/db_x-trackers_DBLCI_-_OY_BALANCED_UCITS_ETF_EUR_1C'
   #picker.pick_from_complete_url(url)
-  picker.pick_from_easychart(url_easy)
+  
+  urls = []
+  
+  #LU0292106167
+  urls << 'http://www.easycharts.at/index.asp?action=securities_securityDetails&id=tts-11057070&menuId=1&pathName=DB%20X-TR.DBLCI-OY%20BAL.%201C'
+  
+  picker = EtfQuoteFinanzNet.new
+  urls.each do |url|
+    picker.pick_from_easychart(url)
+  end
+  
+  picker.write_quotes('D:\scratch\csharp\PortfolioExcelChecker\PortfolioExcelChecker\bin\Debug\quote.csv')
   
 end
