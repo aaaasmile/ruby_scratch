@@ -72,6 +72,7 @@ end
 if $0 == __FILE__
   #url = 'http://www.finanzen.net/etf/db_x-trackers_DBLCI_-_OY_BALANCED_UCITS_ETF_EUR_1C'
   #picker.pick_from_complete_url(url)
+  puts "get_quote.rb is using hard coded urls..."
   
   urls = []
   # 1 LU0290357929  db x-trackers II iBoxx Global Infl.-linked UCITS ETF 1C
