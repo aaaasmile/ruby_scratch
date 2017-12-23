@@ -11,6 +11,16 @@ class RaceItem
     @runner_id = 1
   end
   
+  def title=(tt)
+    if tt =~ /\(*.[H,h][m,M]/
+      arr = tt.split('(')
+      @title = arr[0].strip
+      arr[1] = arr[1].downcase
+      @ascending_meter = arr[1].gsub("(","").gsub(")","").gsub('hm',"").gsub(" ","") 
+    else
+      @title = tt.strip
+    end
+  end
   #def race_date=(dt_str)
     ##arr = dt_str.split('-')
     #@race_date = dt_str
@@ -54,8 +64,9 @@ class RacePicker
       end 
       #//*[@id="race_tacho"]     
       tacho.search('div').select{|litem| litem.attributes["id"].value == "race_tacho"}.each do |item_value|
-        p @race_item.title = item_value.inner_html.gsub("\xA0", "") #remove non breaking spaces -> &nbsp
+        @race_item.title = item_value.inner_html.gsub("\xA0", "") #remove non breaking spaces -> &nbsp
       end
+      p @race_item
       exit if i == 1
       i += 1
       #ergebnis_bewerbdatum
