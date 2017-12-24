@@ -137,15 +137,23 @@ class RacePicker
     @log.debug "Connected to the db"
   end
   
-  def check_the_lastdate
+  def get_latest_racedate_indb
     query = "SELECT race_date, title  FROM race ORDER BY race_date DESC LIMIT 1"
     result = exec_query(query)
     if result.ntuples == 0
-      return Time.parse("2010-01-01 00:00:00")
+      return Time.parse("2000-01-01 00:00:00")
     end
     #p result[0]
     p res = Time.parse(result[0]["race_date"])
     return res
+  end
+
+  def is_race_item_indb?(item)
+    #p item
+    date_str = item.serialize_field_value(:race_date, item.race_date)
+    query = "SELECT race_date, title  FROM race WHERE race_date = '#{date_str}' AND title = '#{item.title}' LIMIT 1"
+    result = exec_query(query)
+    return result.ntuples != 0
   end
 
   def insert_indb(race_item)
@@ -175,11 +183,6 @@ class RacePicker
       tacho.search('div').select{|ldate| ldate.attributes["id"].value == "ergebnis_bewerbdatum"}.each do |date_race|
         @race_item.race_date = date_race.inner_html.gsub(@str_nbs, "").gsub(/[[:space:]]+\z/,"").strip #remove all spaces, also  &nbsp at the end -> "2016-10-29\xA0\xA0"
       end
-      if !@race_item.is_item_recent?(latest_date_in_db)
-        p @race_item.race_date
-        @log.debug "Ignore item #{i} - date: #{@race_item.race_date}. Search is terminated because now races should be already into the db"
-        break;
-      end
       #//*[@id="ergebnis_bewerbname"]
       tacho.search('div').select{|litem| litem.attributes["id"].value == "ergebnis_bewerbname"}.each do |item|
         name = nil
@@ -192,6 +195,11 @@ class RacePicker
       #//*[@id="race_tacho"]     
       tacho.search('div').select{|litem| litem.attributes["id"].value == "race_tacho"}.each do |item_value|
         @race_item.title = item_value.inner_html.gsub(@str_nbs, "") #remove non breaking spaces -> &nbsp
+      end
+      if !@race_item.is_item_recent?(latest_date_in_db)
+        #p @race_item.race_date
+        @log.debug "Ignore item #{i} - date: #{@race_item.race_date} - #{@race_item.title}.\nSearch is terminated because now all races should be already into the db, but consider to make a consistency check."
+        break;
       end
       #//*[@id="distanz_tacho"]
       tacho.search('div').select{|litem| litem.attributes["id"].value == "distanz_tacho"}.each do |item_value|
@@ -252,19 +260,70 @@ class RacePicker
     end 
   end
 
+  def check_races(opt)
+    insert_missed = opt[:insert_missed]
+    @missed_items = []
+    @races.sort{|a,b| a.race_date <=> b.race_date}.each do |item|
+      if is_race_item_indb?(item)
+        @log.debug "race item #{item.title} - #{item.race_date} is stored OK"
+      elsif insert_missed
+        insert_indb(item)
+        @log.debug "#{item.title} - #{item.race_date} inserted successfully."
+      else
+        @log.debug "race item #{item.title} - #{item.race_date} is not in the db."
+        @missed_items << item
+      end
+    end
+    @log.debug "Checked #{@races.size} races: #{@missed_items.size} are missed"
+    if @missed_items.size == 0
+      @log.debug "Race table in Db is OK (race_date and title, if have changed other fields, please delete the record into the db and rerun this check)"
+    else
+      @log.debug "Please run again check_races with the insert missed option set to true, or use insert_races_indb"
+    end
+  end
+
 end
 
 if $0 == __FILE__
   require 'log4r'
   include Log4r
-  Log4r::Logger.new("RacePicker")
+  @log = Log4r::Logger.new("RacePicker")
   Log4r::Logger['RacePicker'].outputters << Outputter.stdout
 
   url = "http://www.membersclub.at/ccmc_showprofile.php?unr=9671&show_tacho=1&pass=008"
   picker = RacePicker.new
-  latest_date_in_db = picker.check_the_lastdate
-  picker.pick_races(url, latest_date_in_db) 
-  picker.insert_races_indb
+
+  check_consistency = false
+  insert_new_races = true
+  insert_missed = false
+  if ARGV.size > 0
+    if ARGV[0] == '/help'
+      @log.debug 'Advanced Usage : ruby race_picker.rb "{:check_consistency => true, :insert_missed => false, :insert_new_races => false}"'
+      @log.debug 'Advanced Usage2: ruby race_picker.rb "{:check_consistency => true, :insert_missed => true, :insert_new_races => false}"'
+      @log.debug "Usual usage: ruby race_picker.rb" 
+      exit
+    else
+      #p ARGV[0]
+      opt = eval(ARGV[0])
+      check_consistency = opt[:check_consistency]
+      insert_missed = opt[:insert_missed]
+      insert_new_races = opt[:insert_new_races]
+    end
+  end
+  if insert_missed && !check_consistency
+    @log.error ":insert_missed works only with :check_consistency"
+  end
+  @log.debug "Options are: check_consistency: #{check_consistency} (insert_missed: #{insert_missed}),  insert_new_races: #{insert_new_races}"
+
+  if check_consistency
+    picker.pick_races(url, Time.parse("2000-01-01 00:00:00")) 
+    picker.check_races({:insert_missed => insert_missed})
+  end
+  if insert_new_races
+    latest_date_in_db = picker.get_latest_racedate_indb
+    picker.pick_races(url, latest_date_in_db) 
+    picker.insert_races_indb
+  end
 end
 
 #div id = ergebnis_container_tacho
