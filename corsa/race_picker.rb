@@ -1,5 +1,7 @@
 require 'rubygems'
 require 'mechanize'
+require 'pg'
+
 #Note: sviluppato con arachno e ruby 1.8.6
 # il db però usa le stringe in formato utf8 quindi va usato un ruby tipo 2.3.1 quando si va scrivere nel db
 
@@ -63,10 +65,7 @@ class RaceItem
   def rank_class=(rg)
     @rank_class = rg.gsub(".","").to_i
   end
-  #def race_date=(dt_str)
-    ##arr = dt_str.split('-')
-    #@race_date = dt_str
-  #end
+  
 end
 
 ################################################## RACEPICKER
@@ -92,14 +91,10 @@ class RacePicker
     @log.debug "Using parser #{Mechanize.html_parser}"   # Nokogiri::HTML
     page = @agent.get(url)
     #puts page.body
-    i = 0
-    #page.search('body//div//div//div//div//div').set('class','ergebnis_container_tacho').each do |element|
-    #page.search("body//div//div//div//div//div").each do |element|
-    #element.search('div//div').each do |field|
-    #  p field.inner_html
-    #end
+    i = 1
     @races = []
     #per avere l'elemento che si cerca, si usa select che è un nokogiri con attributes e children
+    # per capire cosa bisogna selezionare, basta usare p link all'interno del block select
     page.search("body//div//div//div//div//div").select{|link| link.attributes["id"].value == "ergebnis_container_tacho"}.each do |tacho|   
       #p link
       #p link.inner_html
