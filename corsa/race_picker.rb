@@ -2,7 +2,10 @@ require 'rubygems'
 require 'mechanize'
 require 'pg'
 
-#Note: sviluppato con arachno e ruby 1.8.6
+#Script che uso per fare l'aggiornamento del mio db delle gare memorizzate sul sito pentek
+#In questo modo non devo editare le gare due volte, ma solo sul sito Pentek.
+
+#Note: Ho cominciato con arachno e ruby 1.8.6
 # il db però usa le stringe in formato utf8 quindi va usato un ruby tipo 2.3.1 quando si va scrivere nel db
 
 class RaceItem
@@ -65,6 +68,11 @@ class RaceItem
   def rank_class=(rg)
     @rank_class = rg.gsub(".","").to_i
   end
+
+  def is_item_recent?(latest_date_in_db)
+    p date_comp = Time.parse("#{race_date} 00:00:00")
+    date_comp > latest_date_in_db
+  end
   
 end
 
@@ -83,11 +91,38 @@ class RacePicker
       @str_nbs = "\240"
       @str_nbs2 = "\302\240"
     end
+    @use_debug_sql = true
+    connect_to_local_db
     #@str_nbs = "\240" #http://www.utf8-chartable.de/ non breaking space
   end
+
+  def connect_to_local_db
+    @dbpg_conn = PG::Connection.open(:dbname => 'corsadb', 
+                                    :user => 'corsa_user', 
+                                    :password => 'corsa_user', 
+                                    :host => 'localhost', 
+                                    :port => 5432)
+    @log.debug "Connected to the db"
+  end
   
-  def pick_races(url)
-    @log.debug "Url: #{url}"
+  def check_the_lastdate
+    query = "SELECT race_date, title  FROM race ORDER BY race_date DESC LIMIT 1"
+    result = exec_query(query)
+    if result.ntuples == 0
+      return Time.parse("2010-01-01 00:00:00")
+    end
+    #p result[0]
+    p res = Time.parse(result[0]["race_date"])
+    return res
+  end
+
+  def exec_query(query)
+    @log.debug query if @use_debug_sql
+    @dbpg_conn.async_exec(query)  
+  end
+
+  def pick_races(url, latest_date_in_db)
+    @log.debug "Url: #{url}, date last race in db #{latest_date_in_db}"
     @log.debug "Using parser #{Mechanize.html_parser}"   # Nokogiri::HTML
     page = @agent.get(url)
     #puts page.body
@@ -102,6 +137,10 @@ class RacePicker
       @race_item = RaceItem.new 
       tacho.search('div').select{|ldate| ldate.attributes["id"].value == "ergebnis_bewerbdatum"}.each do |date_race|
         @race_item.race_date = date_race.inner_html.gsub(@str_nbs, "") #remove non breaking spaces -> &nbsp
+      end
+      if !@race_item.is_item_recent?(latest_date_in_db)
+        @log.debug "Ignore item #{i}. Search is terminated because now races should be already into the db"
+        break;
       end
       #//*[@id="ergebnis_bewerbname"]
       tacho.search('div').select{|litem| litem.attributes["id"].value == "ergebnis_bewerbname"}.each do |item|
@@ -172,7 +211,8 @@ if $0 == __FILE__
 
   url = "http://www.membersclub.at/ccmc_showprofile.php?unr=9671&show_tacho=1&pass=008"
   picker = RacePicker.new
-  picker.pick_races(url) 
+  latest_date_in_db = picker.check_the_lastdate
+  picker.pick_races(url, latest_date_in_db) 
 end
 
 #div id = ergebnis_container_tacho
