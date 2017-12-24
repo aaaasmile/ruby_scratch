@@ -263,11 +263,13 @@ class RacePicker
   def check_races(opt)
     insert_missed = opt[:insert_missed]
     @missed_items = []
+    @inserted = []
     @races.sort{|a,b| a.race_date <=> b.race_date}.each do |item|
       if is_race_item_indb?(item)
         @log.debug "race item #{item.title} - #{item.race_date} is stored OK"
       elsif insert_missed
         insert_indb(item)
+        @inserted << item
         @log.debug "#{item.title} - #{item.race_date} inserted successfully."
       else
         @log.debug "race item #{item.title} - #{item.race_date} is not in the db."
@@ -275,8 +277,10 @@ class RacePicker
       end
     end
     @log.debug "Checked #{@races.size} races: #{@missed_items.size} are missed"
-    if @missed_items.size == 0
+    if @missed_items.size == 0 && @inserted.size == 0
       @log.debug "Race table in Db is OK (race_date and title, if have changed other fields, please delete the record into the db and rerun this check)"
+    elsif @inserted.size > 0 && @missed_items.size == 0
+      @log.debug "Inserted #{@inserted.size} races, now db should be sync"
     else
       @log.debug "Please run again check_races with the insert missed option set to true, or use insert_races_indb"
     end
