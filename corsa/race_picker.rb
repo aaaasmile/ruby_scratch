@@ -17,6 +17,10 @@ class RaceItem
     @sport_type_id = 0 # duathlon is 1. Informazione presente solo nel css background del div //*[@id="zeile_zwei_dua_tacho"]
                        # l'ho messa anche nel titolo
     @ascending_meter = 0
+    @changed_fields = [:name,:title,:meter_length,:ascending_meter,:descending,:rank_global,:rank_gender,:rank_class,:class_name,:race_date,:sport_type_id,
+          :race_time,:pace_kmh,:pace_minkm,:comment,:race_subtype_id,:runner_id,:km_length]
+    @field_types = {:race_date => :datetime, :meter_length => :int, :ascending_meter => :int, :descending => :int, :rank_global => :int,
+                    :rank_gender => :int, :rank_class => :int, :sport_type_id => :int, :race_subtype_id => :int, :runner_id => :int, :km_length => :numeric }
   end
   
   def title=(tt)
@@ -69,9 +73,37 @@ class RaceItem
     @rank_class = rg.gsub(".","").to_i
   end
 
+  def race_date=(dt)
+    @race_date = Time.parse(dt)
+  end
+
   def is_item_recent?(latest_date_in_db)
-    date_comp = Time.parse(@race_date)
-    date_comp > latest_date_in_db
+    @race_date > latest_date_in_db
+  end
+
+  def get_field_title
+    arr = @changed_fields.map{|e| e.to_s}
+    arr.join(',')
+  end
+
+  def get_field_values(dbpg_conn)
+    arr = @changed_fields.map{|f| "'" + dbpg_conn.escape_string(serialize_field_value(f,send(f))) + "'"}
+    arr.join(',')
+  end
+
+  def serialize_field_value(field, value)
+    if @field_types[field] == :datetime
+      res = value.strftime("%Y-%m-%d %H:%M:%S")
+    elsif @field_types[field] == :boolean
+      res = value ? 1 : 0
+    elsif @field_types[field] == :int
+      res = value ? value : 0
+    elsif @field_types[field] == :numeric
+      res = value ? value : 0.0
+    else
+      res = value.to_s
+    end
+    res = res.to_s
   end
   
 end
@@ -114,6 +146,12 @@ class RacePicker
     #p result[0]
     p res = Time.parse(result[0]["race_date"])
     return res
+  end
+
+  def insert_indb(race_item)
+    query = "INSERT INTO race (#{race_item.get_field_title}) VALUES (#{race_item.get_field_values(@dbpg_conn)})" 
+    exec_query(query)
+    exit # REMOVE me
   end
 
   def exec_query(query)
@@ -200,6 +238,11 @@ class RacePicker
       
     end
     @log.debug "Found #{@races.length} items that need to be inserted into the db"
+    @races.sort{|a,b| a.race_date <=> b.race_date}.each do |item|
+      #insert the oldest new item first
+      #p item
+      insert_indb(item) 
+    end
     #p @races
   end
 end
