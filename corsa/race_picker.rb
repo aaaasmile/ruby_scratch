@@ -21,6 +21,11 @@ class RaceItem
       @title = tt.strip
     end
   end
+  
+  def km_length=(kl)
+    @km_length = kl.gsub("k","").to_f
+    @meter_length = (@km_length * 1000).to_i 
+  end
   #def race_date=(dt_str)
     ##arr = dt_str.split('-')
     #@race_date = dt_str
@@ -45,28 +50,35 @@ class RacePicker
     #  p field.inner_html
     #end
     @races = []
+    #per avere l'elemento che si cerca, si usa select che è un nokogiri con attributes e children
     page.search("body//div//div//div//div//div").select{|link| link.attributes["id"].value == "ergebnis_container_tacho"}.each do |tacho|   
       #p link
       #p link.inner_html
       @race_item = RaceItem.new 
       tacho.search('div').select{|ldate| ldate.attributes["id"].value == "ergebnis_bewerbdatum"}.each do |date_race|
-        p @race_item.race_date = date_race.inner_html.gsub("\xA0", "") #remove non breaking spaces -> &nbsp
+        @race_item.race_date = date_race.inner_html.gsub("\xA0", "") #remove non breaking spaces -> &nbsp
       end
       #//*[@id="ergebnis_bewerbname"]
-      tacho.search('div').select{|ldate| ldate.attributes["id"].value == "ergebnis_bewerbname"}.each do |item|
+      tacho.search('div').select{|litem| litem.attributes["id"].value == "ergebnis_bewerbname"}.each do |item|
         name = nil
         item.search('a').each do |link_a|
-          name = link_a.inner_html
+          name = link_a.inner_html.gsub("\xA0", "") 
         end
         name = item.inner_html if name == nil
-        p @race_item.name = name.gsub("\xA0", "") 
+        @race_item.name = name.gsub("\xA0", "") 
         #puts race_item.race_date = date_race.inner_html
       end 
       #//*[@id="race_tacho"]     
       tacho.search('div').select{|litem| litem.attributes["id"].value == "race_tacho"}.each do |item_value|
         @race_item.title = item_value.inner_html.gsub("\xA0", "") #remove non breaking spaces -> &nbsp
       end
-      p @race_item
+      #//*[@id="distanz_tacho"]
+      tacho.search('div').select{|litem| litem.attributes["id"].value == "distanz_tacho"}.each do |item_value|
+        @race_item.km_length = item_value.children.last.text.strip
+        #p item_value.inner_html.gsub("\xA0", "") #remove non breaking spaces -> &nbsp
+      end
+      
+      #p @race_item
       exit if i == 1
       i += 1
       #ergebnis_bewerbdatum
