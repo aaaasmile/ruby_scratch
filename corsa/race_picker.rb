@@ -70,7 +70,7 @@ class RaceItem
   end
 
   def is_item_recent?(latest_date_in_db)
-    p date_comp = Time.parse("#{race_date} 00:00:00")
+    date_comp = Time.parse(@race_date)
     date_comp > latest_date_in_db
   end
   
@@ -136,10 +136,11 @@ class RacePicker
       @log.debug "Found a new item #{i}..."
       @race_item = RaceItem.new 
       tacho.search('div').select{|ldate| ldate.attributes["id"].value == "ergebnis_bewerbdatum"}.each do |date_race|
-        @race_item.race_date = date_race.inner_html.gsub(@str_nbs, "") #remove non breaking spaces -> &nbsp
+        @race_item.race_date = date_race.inner_html.gsub(@str_nbs, "").gsub(/[[:space:]]+\z/,"").strip #remove all spaces, also  &nbsp at the end -> "2016-10-29\xA0\xA0"
       end
       if !@race_item.is_item_recent?(latest_date_in_db)
-        @log.debug "Ignore item #{i}. Search is terminated because now races should be already into the db"
+        p @race_item.race_date
+        @log.debug "Ignore item #{i} - date: #{@race_item.race_date}. Search is terminated because now races should be already into the db"
         break;
       end
       #//*[@id="ergebnis_bewerbname"]
