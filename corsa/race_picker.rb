@@ -37,6 +37,14 @@ class RacePicker
     @agent = Mechanize::Mechanize.new
     @agent.user_agent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1"
     @picked_races = {}
+    if RUBY_VERSION != '1.8.6'
+      @str_nbs = "\uc2a0".force_encoding('ISO-8859-1')
+      @str_nbs2 = "\u00A0"
+    else
+      @str_nbs = "\240"
+      @str_nbs2 = "\302\240"
+    end
+    #@str_nbs = "\240" #http://www.utf8-chartable.de/ non breaking space
   end
   
   def pick_races(url)
@@ -56,29 +64,36 @@ class RacePicker
       #p link.inner_html
       @race_item = RaceItem.new 
       tacho.search('div').select{|ldate| ldate.attributes["id"].value == "ergebnis_bewerbdatum"}.each do |date_race|
-        @race_item.race_date = date_race.inner_html.gsub("\xA0", "") #remove non breaking spaces -> &nbsp
+        @race_item.race_date = date_race.inner_html.gsub(@str_nbs, "") #remove non breaking spaces -> &nbsp
       end
       #//*[@id="ergebnis_bewerbname"]
       tacho.search('div').select{|litem| litem.attributes["id"].value == "ergebnis_bewerbname"}.each do |item|
         name = nil
         item.search('a').each do |link_a|
-          name = link_a.inner_html.gsub("\xA0", "") 
+          name = link_a.inner_html.gsub(@str_nbs, "") 
         end
         name = item.inner_html if name == nil
-        @race_item.name = name.gsub("\xA0", "") 
+        @race_item.name = name.gsub(@str_nbs, "") 
         #puts race_item.race_date = date_race.inner_html
       end 
       #//*[@id="race_tacho"]     
       tacho.search('div').select{|litem| litem.attributes["id"].value == "race_tacho"}.each do |item_value|
-        @race_item.title = item_value.inner_html.gsub("\xA0", "") #remove non breaking spaces -> &nbsp
+        @race_item.title = item_value.inner_html.gsub(@str_nbs, "") #remove non breaking spaces -> &nbsp
       end
       #//*[@id="distanz_tacho"]
       tacho.search('div').select{|litem| litem.attributes["id"].value == "distanz_tacho"}.each do |item_value|
         @race_item.km_length = item_value.children.last.text.strip
-        #p item_value.inner_html.gsub("\xA0", "") #remove non breaking spaces -> &nbsp
+      end
+      #//*[@id="zeit_tacho"]
+      tacho.search('div').select{|litem| litem.attributes["id"].value == "zeit_tacho"}.each do |item_value|
+        @race_item.race_time = item_value.children.last.text.strip 
+      end
+      #//*[@id="minprokm_tacho"]
+      tacho.search('div').select{|litem| litem.attributes["id"].value == "minprokm_tacho"}.each do |item_value|
+        p @race_item.pace_minkm = item_value.children.last.text.strip.gsub(@str_nbs2,"")
       end
       
-      #p @race_item
+      p @race_item
       exit if i == 1
       i += 1
       #ergebnis_bewerbdatum
