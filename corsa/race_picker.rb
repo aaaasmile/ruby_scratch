@@ -151,7 +151,6 @@ class RacePicker
   def insert_indb(race_item)
     query = "INSERT INTO race (#{race_item.get_field_title}) VALUES (#{race_item.get_field_values(@dbpg_conn)})" 
     exec_query(query)
-    exit # REMOVE me
   end
 
   def exec_query(query)
@@ -235,16 +234,24 @@ class RacePicker
       @log.debug "#{@race_item.title} - #{@race_item.race_date}"
       i += 1
       #ergebnis_bewerbdatum
-      
     end
     @log.debug "Found #{@races.length} items that need to be inserted into the db"
+    #p @races
+  end
+
+  def insert_races_indb
     @races.sort{|a,b| a.race_date <=> b.race_date}.each do |item|
       #insert the oldest new item first
       #p item
       insert_indb(item) 
     end
-    #p @races
+    if @races.length == 0
+      @log.debug "Db is already updated, no new races to insert found"
+    else
+      @log.debug "Inserted #{@races.length} new races successfully."
+    end 
   end
+
 end
 
 if $0 == __FILE__
@@ -257,6 +264,7 @@ if $0 == __FILE__
   picker = RacePicker.new
   latest_date_in_db = picker.check_the_lastdate
   picker.pick_races(url, latest_date_in_db) 
+  picker.insert_races_indb
 end
 
 #div id = ergebnis_container_tacho
