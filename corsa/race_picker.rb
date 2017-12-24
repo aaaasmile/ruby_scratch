@@ -9,6 +9,8 @@ class RaceItem
   
   def initialize
     @runner_id = 1
+    @sport_type_id = 0 # duathlon is 1. Informazione presente solo nel css background del div //*[@id="zeile_zwei_dua_tacho"]
+    @ascending_meter = 0
   end
   
   def title=(tt)
@@ -16,7 +18,7 @@ class RaceItem
       arr = tt.split('(')
       @title = arr[0].strip
       arr[1] = arr[1].downcase
-      @ascending_meter = arr[1].gsub("(","").gsub(")","").gsub('hm',"").gsub(" ","") 
+      @ascending_meter = arr[1].gsub("(","").gsub(")","").gsub('hm',"").gsub(" ","").to_i 
     else
       @title = tt.strip
     end
@@ -25,6 +27,36 @@ class RaceItem
   def km_length=(kl)
     @km_length = kl.gsub("k","").to_f
     @meter_length = (@km_length * 1000).to_i 
+    if @ascending_meter > 10 and @meter_length != 42195 
+      @race_subtype_id = 1
+      if @meter_length > 10999 and @meter_length < 42195 
+        @race_subtype_id = 7
+      elsif @meter_length > 42195
+        @race_subtype_id = 6
+      end   
+    elsif @meter_length < 10999
+      @race_subtype_id = 2
+    elsif @meter_length == 21097 
+      @race_subtype_id = 3
+    elsif @meter_length == 42195 
+      @race_subtype_id = 4
+    elsif @meter_length > 42195 
+      @race_subtype_id = 5
+    else
+      @race_subtype_id = 8
+    end 
+  end
+  
+  def rank_global=(rg)
+    @rank_global = rg.gsub(".","").to_i
+  end
+  
+  def rank_gender=(rg)
+    rank_gender = rg.gsub(".","").to_i
+  end
+  
+  def rank_class=(rg)
+    @rank_class = rg.gsub(".","").to_i
   end
   #def race_date=(dt_str)
     ##arr = dt_str.split('-')
@@ -90,15 +122,41 @@ class RacePicker
       end
       #//*[@id="minprokm_tacho"]
       tacho.search('div').select{|litem| litem.attributes["id"].value == "minprokm_tacho"}.each do |item_value|
-        p @race_item.pace_minkm = item_value.children.last.text.strip.gsub(@str_nbs2,"")
+        @race_item.pace_minkm = item_value.children.last.text.strip.gsub(@str_nbs2,"")
+      end
+      #//*[@id="kmproh_tacho"]
+      tacho.search('div').select{|litem| litem.attributes["id"].value == "kmproh_tacho"}.each do |item_value|
+        @race_item.pace_kmh = item_value.children.last.text.gsub(@str_nbs2, "")
+      end
+      #//*[@id="gesamtrang_tacho"]
+      tacho.search('div').select{|litem| litem.attributes["id"].value == "gesamtrang_tacho"}.each do |item_value|
+        @race_item.rank_global = item_value.children.first.text
+      end
+      #rank_gender
+      #//*[@id="mwrang_tacho"]
+      tacho.search('div').select{|litem| litem.attributes["id"].value == "mwrang_tacho"}.each do |item_value|
+        @race_item.rank_gender = item_value.children.first.text
+      end
+      #rank_class
+      #//*[@id="klassenrang_tacho"]
+      tacho.search('div').select{|litem| litem.attributes["id"].value == "klassenrang_tacho"}.each do |item_value|
+        @race_item.rank_class = item_value.children.first.text
+        @race_item.class_name = item_value.children.last.text.gsub("Kl.","")
+      end
+      #//*[@id="container_kommentar_tacho"]
+      tacho.search('div').select{|litem| litem.attributes["id"].value == "container_kommentar_tacho"}.each do |item_value|
+        @race_item.comment = item_value.children.last.text
       end
       
-      p @race_item
-      exit if i == 1
+      #p @race_item
+      @races << @race_item 
+      
+      break if i == 1
       i += 1
       #ergebnis_bewerbdatum
-      @races << @race_item 
+      
     end
+    p @races
   end
 end
 
