@@ -1,5 +1,8 @@
+$:.unshift File.dirname(__FILE__)
+
 require 'rubygems'
 require 'mechanize'
+require 'db_baseitem'
 require 'pg'
 
 #Script che uso per fare l'aggiornamento del mio db delle gare memorizzate sul sito pentek
@@ -8,7 +11,7 @@ require 'pg'
 #Note: Ho cominciato con arachno e ruby 1.8.6
 # il db però usa le stringe in formato utf8 quindi va usato un ruby tipo 2.3.1 quando si va scrivere nel db
 
-class RaceItem
+class RaceItem < DbBaseItem
   attr_accessor :name,:title,:meter_length,:ascending_meter,:descending,:rank_global,:rank_gender,:rank_class,:class_name,:race_date,:sport_type_id,
         :race_time,:pace_kmh,:pace_minkm,:comment,:race_subtype_id,:runner_id,:km_length
   
@@ -80,32 +83,6 @@ class RaceItem
   def is_item_recent?(latest_date_in_db)
     @race_date > latest_date_in_db
   end
-
-  def get_field_title
-    arr = @changed_fields.map{|e| e.to_s}
-    arr.join(',')
-  end
-
-  def get_field_values(dbpg_conn)
-    arr = @changed_fields.map{|f| "'" + dbpg_conn.escape_string(serialize_field_value(f,send(f))) + "'"}
-    arr.join(',')
-  end
-
-  def serialize_field_value(field, value)
-    if @field_types[field] == :datetime
-      res = value.strftime("%Y-%m-%d %H:%M:%S")
-    elsif @field_types[field] == :boolean
-      res = value ? 1 : 0
-    elsif @field_types[field] == :int
-      res = value ? value : 0
-    elsif @field_types[field] == :numeric
-      res = value ? value : 0.0
-    else
-      res = value.to_s
-    end
-    res = res.to_s
-  end
-  
 end
 
 ################################################## RACEPICKER
