@@ -171,5 +171,5 @@ if $0 == __FILE__
   #tot_race_time_sec = 3600 * 24
   insert_last_partial = true
   inserter.create_laps(race_id, 'data/2017-06-30-24h-irdning.txt', lap_meter, km_race, tot_race_time_sec, insert_last_partial)
-  inserter.store_laps_indb
+  #inserter.store_laps_indb # caution, store reinsert previous items
 end
