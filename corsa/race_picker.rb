@@ -87,7 +87,7 @@ end
 
 ################################################## RACEPICKER
 
-class RacePicker
+class RacePicker < DbConnectBase
   def initialize
     @log = Log4r::Logger["RacePicker"]
     @agent = Mechanize::Mechanize.new
@@ -100,20 +100,10 @@ class RacePicker
       @str_nbs = "\240"
       @str_nbs2 = "\302\240"
     end
-    @use_debug_sql = true
-    connect_to_local_db
+    super
     #@str_nbs = "\240" #http://www.utf8-chartable.de/ non breaking space
   end
 
-  def connect_to_local_db
-    @dbpg_conn = PG::Connection.open(:dbname => 'corsadb', 
-                                    :user => 'corsa_user', 
-                                    :password => 'corsa_user', 
-                                    :host => 'localhost', 
-                                    :port => 5432)
-    @log.debug "Connected to the db"
-  end
-  
   def get_latest_racedate_indb
     query = "SELECT race_date, title  FROM race ORDER BY race_date DESC LIMIT 1"
     result = exec_query(query)
@@ -136,11 +126,6 @@ class RacePicker
   def insert_indb(race_item)
     query = "INSERT INTO race (#{race_item.get_field_title}) VALUES (#{race_item.get_field_values(@dbpg_conn)})" 
     exec_query(query)
-  end
-
-  def exec_query(query)
-    @log.debug query if @use_debug_sql
-    @dbpg_conn.async_exec(query)  
   end
 
   def pick_races(url, latest_date_in_db)
@@ -266,6 +251,9 @@ class RacePicker
 end
 
 if $0 == __FILE__
+  # Nota: non è necessario cambiare questo script, basta usare la linea di comando
+  #       Quello che fa questo script è andare sul sito di Pentenk, prendere le gare e 
+  #       importarle nel database. È in grado di importare solo quelle nuove, ma anche tutte le altre e di fare un check tra il db e il sito.
   require 'log4r'
   include Log4r
   @log = Log4r::Logger.new("RacePicker")
@@ -306,5 +294,3 @@ if $0 == __FILE__
     picker.insert_races_indb
   end
 end
-
-#div id = ergebnis_container_tacho
