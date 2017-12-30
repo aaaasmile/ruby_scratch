@@ -145,6 +145,12 @@ class RaceDetailInsert < DbConnectBase
   end #end create_laps
 
   def store_laps_indb
+    @log.debug "Store laps into the db."
+    @items.each do |item|
+      query = "INSERT INTO racelap_detail (#{item.get_field_title}) VALUES (#{item.get_field_values(@dbpg_conn)})" 
+      exec_query(query)
+    end
+    @log.debug "Processed #{@items.size} items, all items are successfuly inserted into the db."
   end
 
 end
