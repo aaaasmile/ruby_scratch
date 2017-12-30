@@ -9,10 +9,10 @@ require 'time'
 ############################# RaceDetailItem
 
 class RaceDetailItem < DbBaseItem
-  attr_accessor :lap_number, :lap_time, :lap_meter, :lap_pace_minkm, :tot_meter_race, :tot_race_minkm, :race_id, :tot_race_time
+  attr_accessor :lap_number, :lap_time, :lap_meter, :lap_pace_minkm, :tot_meter_race, :tot_race_minkm, :race_id, :tot_race_time, :tot_km_race
 
   def initialize
-    @changed_fields = [:lap_number, :lap_time, :lap_meter, :lap_pace_minkm, :tot_meter_race, :tot_race_minkm, :race_id, :tot_race_time]
+    @changed_fields = [:lap_number, :lap_time, :lap_meter, :lap_pace_minkm, :tot_meter_race, :tot_race_minkm, :race_id, :tot_race_time, :tot_km_race]
     @field_types = {:lap_number => :int, :lap_meter => :int, :tot_meter_race => :int}
   end
 
@@ -37,6 +37,13 @@ class RaceDetailInsert < DbConnectBase
     else
       raise "Race #{title} at #{date} not found"
     end
+  end
+
+  def format_seconds(tot_time_sec)
+    hh = (tot_time_sec / 3600).floor
+    min = ((tot_time_sec - (3600 * hh)) / 60).floor
+    ss = tot_time_sec - (3600 * hh) - (60 * min)
+    time_str = pad_to_col(hh.to_s, "0", 2) + ':' + pad_to_col(min.to_s, "0", 2) + ':' + pad_to_col(ss.to_s, "0", 2) ;
   end
 
   #Provides a pace string. Something like "06:41" for a velocity of 8.98 km/h
@@ -78,7 +85,7 @@ class RaceDetailInsert < DbConnectBase
     File.open(fname, 'r').each_line do |line|
       arr_laps_str = line.split(" ")
       arr_laps_str.each do |value_s|
-        p value_s
+        #p value_s
         t1 = Time.parse(value_s)
         #p t1.methods
         lap_sec = t1.hour * 3600 + t1.min * 60 + t1.sec
@@ -89,10 +96,15 @@ class RaceDetailInsert < DbConnectBase
         item.lap_time = value_s
         item.lap_meter = lap_meter
         item.lap_pace_minkm = calc_pace_in_min_sec(lap_meter, lap_sec) 
-        item.
+        item.tot_meter_race = tot_meter
+        item.tot_race_minkm = calc_pace_in_min_sec(tot_meter, tot_time_sec) 
+        item.race_id = race_id
+        item.tot_race_time = format_seconds(tot_time_sec)
+        item.tot_km_race = tot_meter / 1000
+        #p item
         @items << item
         lap_nr += 1
-        exit if lap_nr == 2
+        exit if lap_nr == 9
       end
       #p line
     end
