@@ -124,6 +124,7 @@ class RacePicker < DbConnectBase
   end
 
   def insert_indb(race_item)
+    p race_item
     query = "INSERT INTO race (#{race_item.get_field_title}) VALUES (#{race_item.get_field_values(@dbpg_conn)})" 
     exec_query(query)
   end

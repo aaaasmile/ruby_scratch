@@ -13,7 +13,7 @@ class DbBaseItem
 
   def serialize_field_value(field, value)
     if @field_types[field] == :datetime
-      res = value ? nil : value.strftime("%Y-%m-%d %H:%M:%S")
+      res = value ? value.strftime("%Y-%m-%d %H:%M:%S") : nil
     elsif @field_types[field] == :boolean
       res = value ? 1 : 0
     elsif @field_types[field] == :int
