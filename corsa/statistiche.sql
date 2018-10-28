@@ -1,20 +1,26 @@
 -- statistiche dell'anno
+-- Questo script non va lanciato in modo completo, ma vanno selezionate le righe che interressano e poi si preme F5.
+-- Uso pgAdmin4 Tools -> Query Tool e qui si carica questo script
 
--- gare
-select r.name, r.title, r.km_length, r.race_date, s.name, r.race_time, r.rank_global, r.id from race as r
+-- gare a partire da una data, statistica annuale:
+--COPY (
+select r.name, r.title, r.km_length, r.ascending_meter, r.race_date, s.name, r.race_time, r.rank_global, r.rank_class, r.id from race as r
 inner join race_subtype s on r.race_subtype_id = s.id
-where r.race_date > '2017-01-01' order by r.race_date asc 
+where r.race_date > '2018-01-01' order by r.race_date asc 
+--) TO 'D:\scratch\postgres\corsa\race-2018-02.csv' With CSV DELIMITER ';' HEADER; -- export in excel con COPY e TO
+-- Nota che excel interpreta questo export come ansi. Per l'utf-8, che è lo standard usato dall'export, vuole il BOM.
+-- Quindi con notepad++ o converto in ansi o converto in utf8-bom. Poi apro con excel.
 
 -- delete from race where id = 245
 
 -- sommatorie km e Hm percorsi nell'anno
 select SUM(r.km_length) as Km_Tot, SUM(r.ascending_meter) as HM_Tot  from race as r
 inner join race_subtype s on r.race_subtype_id = s.id
-where r.race_date > '2017-01-01' 
+where r.race_date > '2018-01-01' 
 
--- Numero di ultra
+-- mostra tutti i tipi di gara (serve per poi vedere quale filtro usare sul tipo)
 SELECT * from race_subtype;
-
+-- Numero di ultra
 --select SUM(r.km_length) as Km_Tot, SUM(r.ascending_meter) as HM_Tot  from race as r
 select r.name, r.title, r.km_length, r.ascending_meter as HM, r.race_date, s.name, r.race_time, r.rank_global from race as r
 inner join race_subtype s on r.race_subtype_id = s.id
@@ -78,7 +84,18 @@ where
 AND r.title LIKE '%Silve%'
 order by r.race_date asc 
 
+select r.title as titolo, r.km_length as distanza, r.race_date as data, r.race_time as tempo, r.rank_global as pos from race as r
+inner join race_subtype s on r.race_subtype_id = s.id
+where
+(s.id = 2) 
+AND r.title LIKE '%Silve%'
+order by r.race_date asc 
 
+-- gare da 10km
+select r.name, r.title, r.km_length, r.ascending_meter as HM, r.race_date, s.name, r.race_time, r.rank_global, r.id from race as r
+inner join race_subtype s on r.race_subtype_id = s.id
+where
+(s.id = 2) AND r.km_length = 10
 
 --alter table race alter column race_time SET DATA TYPE Time USING race_time::time without time zone
 -- Prove con il tempo, per le somme dei tempi si usa interval
