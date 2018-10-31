@@ -1,0 +1,21 @@
+    <spms:DataService>
+      <spms:Name><%= @bsname  %></spms:Name>
+      <spms:Description><%= @bsname  %></spms:Description>
+      <spms:NumberOfChannels>3</spms:NumberOfChannels>
+      <spms:Type>Basestation</spms:Type>
+      <spms:TimeZoneOffset>0</spms:TimeZoneOffset>
+      <spms:Validation>
+        <spms:IgnoreRowErrors>false</spms:IgnoreRowErrors>
+        <spms:IgnoreEmptyFiles>false</spms:IgnoreEmptyFiles>
+        <spms:ReportErrorsAs>Log</spms:ReportErrorsAs>
+        <spms:EmailAddress>spms-admin@puesra.com</spms:EmailAddress>
+      </spms:Validation>
+      <spms:Directories>
+        <spms:IsActive>true</spms:IsActive>
+        <spms:IsLiveData>true</spms:IsLiveData>
+        <spms:SourceDirectory>c:\Temp\SPMS\<%= @bsname  %>\Logs</spms:SourceDirectory>
+        <spms:ArchiveDirectory>c:\Temp\SPMS\<%= @bsname  %>\Archive</spms:ArchiveDirectory>
+        <spms:ErrorDirectory>c:\Temp\SPMS\<%= @bsname  %>\Error</spms:ErrorDirectory>
+        <spms:MoveFiles>false</spms:MoveFiles>
+      </spms:Directories>
+    </spms:DataService>
