@@ -1,4 +1,4 @@
-== Sommario
+﻿== Sommario
 race_picker.rb:
 Script che uso per fare l'aggiornamento del mio db delle gare memorizzate sul sito pentek
 In questo modo non devo editare le gare due volte, ma solo sul sito Pentek.
