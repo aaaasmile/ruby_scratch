@@ -1,23 +1,14 @@
 require 'rubygems'
 require 'mechanize'
 
-class EtfQuoteFinanzNet
+class EtfEasyChart
   
   def initialize
     @agent = Mechanize::Mechanize.new
     @agent.user_agent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1"
     @picked_quote = {}
   end
-  
-  def pick_from_complete_url(url)
-    page = @agent.get(url)
-    #puts page.body
-    page.search('body//div//div//div//div//div//div//div//div//div//div').set('class','col-xs-4 col-sm-4 text-sm-right text-nowrap').each do |element|
-      p element.inner_html
-      # non è utilizzabile in quanto manca Xetra, mentre usa Stuggard e NAV
-    end
-  end
-  
+    
   def pick_from_easychart(url)
     page = @agent.get(url)
     data_found = []
@@ -104,7 +95,7 @@ if $0 == __FILE__
   #14 IE00BM67HM91  db x-tr.MSCI Wld.Energy I.ETF
   urls << 'http://www.easycharts.at/index.asp?action=securities_securityDetails&id=tts-102824320&menuId=1&pathName=DB-XTR.MSCI%20WEIU(PD)%201CDL'
   
-  picker = EtfQuoteFinanzNet.new
+  picker = EtfEasyChart.new
   urls.each do |url|
     picker.pick_from_easychart(url)
   end
