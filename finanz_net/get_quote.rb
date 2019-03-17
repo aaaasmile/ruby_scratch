@@ -94,6 +94,10 @@ if $0 == __FILE__
   urls << 'http://www.easycharts.at/index.asp?action=securities_securityDetails&id=tts-2794238&menuId=1&pathName=IS.EO%20ST.SEL.DIV.30%20U.ETF'
   #14 IE00BM67HM91  db x-tr.MSCI Wld.Energy I.ETF
   urls << 'http://www.easycharts.at/index.asp?action=securities_securityDetails&id=tts-102824320&menuId=1&pathName=DB-XTR.MSCI%20WEIU(PD)%201CDL'
+  #15 DE000ETF9074  ComStage 1-MDAX UCITS ETF: Inhaber-Anteile IXETRA-Frankfurt
+  urls << 'http://www.easycharts.at/index.asp?action=securities_chart&id=tts-97685758&menuId=1&pathName=COMSTAGE%201-MDAX%20UCI.ETF%20I'
+  #16 	IE00B1FZS574  ComStage iShsII-MSCI Turkey UCITS ETF: Registered Shs USD (Dist) o.N.
+  urls << 'http://www.easycharts.at/index.asp?action=securities_chart&id=tts-106098900&menuId=1&pathName=ISHSII-MSCI%20TURKEY%20DLDIS'
   
   picker = EtfEasyChart.new
   urls.each do |url|
