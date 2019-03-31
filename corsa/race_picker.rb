@@ -260,7 +260,7 @@ if $0 == __FILE__
   @log = Log4r::Logger.new("RacePicker")
   Log4r::Logger['RacePicker'].outputters << Outputter.stdout
 
-  url = "http://www.membersclub.at/ccmc_showprofile.php?unr=9671&show_tacho=1&pass=008"
+  url = "https://www.membersclub.at/ccmc_showprofile.php?unr=9671&show_tacho=1&pass=008"
   picker = RacePicker.new
 
   check_consistency = false
