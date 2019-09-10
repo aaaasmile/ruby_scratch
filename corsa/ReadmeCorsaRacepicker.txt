@@ -1,5 +1,19 @@
 ﻿Dal 31.03.2019 si usa WLC per l'update.
 
+== Comandi  usati in WLC (pwoershell non va per via di https)
+igors@Laptop-Toni:/mnt/d/Projects/GItHub/ruby_scratch/corsa$ ruby -v
+ruby 2.3.1p112 (2016-04-26 revision 54768) [x86_64-linux]
+
+igors@Laptop-Toni:/mnt/d/Projects/GItHub/ruby_scratch/corsa$ ruby race_picker.rb
+
+
+== Parametri
+Ci sono varie opzioni che consentono di fare un check di integrità dei dati. Il check tra il sito pentek e il mio db.
+Il comando da usare:
+ruby .\race_picker.rb  "{:check_consistency => true, :insert_missed => false, :insert_new_races => false}"
+
+cambiando i paramteri è possibile fare gli inserimenti nel db. Comunque senza parametri inserisce solo le nuove corse,
+che poi è lo standard da usare.
 
 
 == Sommario
@@ -26,20 +40,6 @@ rbenv versions
 In ogni modo WLC fa l'update del db di postgres in windows ed è equivalente a powershell.
 
 
-== OLD
-Uso: powershell e 
-$env:path = "D:\ruby\ruby_2_3_1\bin"
-ruby .\race_picker.rb
-
-
-== Parametri
-Ci sono varie opzioni che consentono di fare un check di integrità dei dati. Il check tra il sito pentek e il mio db.
-Il comando da usare:
-ruby .\race_picker.rb  "{:check_consistency => true, :insert_missed => false, :insert_new_races => false}"
-
-cambiando i paramteri è possibile fare gli inserimenti nel db. Comunque senza parametri inserisce solo le nuove corse,
-che poi è lo standard da usare.
-
 == Database
 Usa il database postgres locale corsadb. Esso viene aggiornato da WLC e nel passato da powershell.
 
@@ -54,3 +54,7 @@ Ora in postgres faccio una quesri per sapere l'id della corsa che non quadra e l
 Lo script non fa le modifiche, ma solo insert, quindi un records da modificare va prima cancellato nel db e reinserito.
 
 
+== OLD OLD OLD
+Uso: powershell e 
+$env:path = "D:\ruby\ruby_2_3_1\bin"
+ruby .\race_picker.rb

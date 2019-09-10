@@ -241,7 +241,7 @@ class RacePicker < DbConnectBase
     end
     @log.debug "Checked #{@races.size} races: #{@missed_items.size} are missed"
     if @missed_items.size == 0 && @inserted.size == 0
-      @log.debug "Race table in Db is OK (race_date and title, if have changed other fields, please delete the record into the db and rerun this check)"
+      @log.debug "Race table in Db is OK (race_date and title, if you have changed other fields, please delete the record into the db and run this check again)"
     elsif @inserted.size > 0 && @missed_items.size == 0
       @log.debug "Inserted #{@inserted.size} races, now db should be sync"
     else
@@ -270,7 +270,7 @@ if $0 == __FILE__
     if ARGV[0] == '/help'
       @log.debug 'Advanced Usage : ruby race_picker.rb "{:check_consistency => true, :insert_missed => false, :insert_new_races => false}"'
       @log.debug 'Advanced Usage2: ruby race_picker.rb "{:check_consistency => true, :insert_missed => true, :insert_new_races => false}"'
-      @log.debug "Usual usage: ruby race_picker.rb" 
+      @log.debug "Usual usage: ruby race_picker.rb  (default values: check_consistency = false, insert_new_races = true, insert_missed = false)" 
       exit
     else
       #p ARGV[0]
