@@ -103,7 +103,7 @@ class GpxReducer
     
   end
   
-  def reduce_half(fname, out_dir)
+  def reduce_half(fname, out_dir, out_fname)
     arr_res = []
     state = :init_point
     count_lines = 0
@@ -141,7 +141,7 @@ class GpxReducer
     end
     jumped_points = (count_lines - arr_res.size) / 4
     puts "Lines on file now #{arr_res.size}, original lines #{count_lines}, jumped points #{jumped_points}"
-    res_fname = File.join(out_dir, 'out_reduced.gpx')
+    res_fname = File.join(out_dir, out_fname)
     File.open(res_fname, 'w'){|f| arr_res.each{|x| f << x}}
     puts "File created #{res_fname}"
   end
@@ -160,9 +160,12 @@ if $0 == __FILE__
   # usando file explorer nel subfolder trips.
   # Con il file del Dirndltal Extrem scaricato da gpsies, aveva 1924 punti che ho splitato in 3 files da 641 punti.
   gr = GpxReducer.new
-  fname = 'E:\corsa\2016\Burgerland_Tour\24StundenBurgenlandExtremTour2015GpsTrack.gpx'
-  out_dir = 'E:\corsa\2016\Burgerland_Tour\gpx'
-  #gr.reduce_half(fname, out_dir)
-  gr.points_counter(fname)
-  gr.gpx_splitter(2, out_dir)
+  #fname = 'D:\Corsa\2020\SpineRace\track\CP5+-+FIN+PADON.gpx'
+  #fname = 'D:\Corsa\2020\SpineRace\track\reduced\06-cp5-FIN-hpC.gpx'
+  out_fname = '04-cp3-cp4-hpC.gpx'
+  out_dir = 'D:\Corsa\2020\SpineRace\track\half-orig\04'
+  #gr.reduce_half(fname, out_dir, out_fname)
+  #gr.points_counter(fname)
+  gr.points_counter(File.join(out_dir, out_fname))
+  #gr.gpx_splitter(2, out_dir)
 end
