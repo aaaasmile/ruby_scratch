@@ -154,6 +154,7 @@ class RacePicker < DbConnectBase
         end
         name = item.inner_html if name == nil
         @race_item.name = name.gsub(@str_nbs, "") 
+        @race_item.name.strip!
       end 
       #//*[@id="race_tacho"]     
       tacho.search('div').select{|litem| litem.attributes["id"].value == "race_tacho"}.each do |item_value|

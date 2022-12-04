@@ -10,6 +10,8 @@ Non ha funzionato come sopra all'istante. La regione è che un localhost in wind
 per esempio il db postgres, non è accessibile tramite WSL2.
 Per questo si usa, non localhost, ma l'IP del resolver. Il quale si legge in WSL2 con:
 grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'
+Ho notato che questo IP cambia ogni volta che faccio partire la WSL2, per cui lancio
+questo comando in ruby ogni volta che mi connetto al db per sapere quale IP devo usare.
 Poi va anche configurata una porta nel firewall di windows per ammettere la porta 5432.
 1)Launch Windows Defender Firewall with Advanced Security
 2)On the left pane select Incoming Rules.

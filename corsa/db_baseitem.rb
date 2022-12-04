@@ -42,10 +42,13 @@ class DbConnectBase
     # Si usa su WSL2 
     # grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'
     # che genera il seguente IP: 172.17.208.1
+    host_to_connect = `grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'`
+    p host_to_connect = host_to_connect.gsub("\n","")
+    @log.debug "Wanna connect to db on IP #{host_to_connect}"
     @dbpg_conn = PG::Connection.open(:dbname => 'corsadb', 
                                     :user => 'corsa_user', 
                                     :password => 'corsa_user', 
-                                    :host => '172.17.208.1', 
+                                    :host => host_to_connect, 
                                     :port => 5432)
     @log.debug "Connected to the db"
   end
