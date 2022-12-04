@@ -1,32 +1,34 @@
 -- statistiche dell'anno
 -- Questo script non va lanciato in modo completo, ma vanno selezionate le righe che interressano e poi si preme F5.
 -- Uso pgAdmin4 Tools -> Query Tool e qui si carica questo script
+-- Il db si aggiorna usando ruby race_picker.rb sotto WLC
 
 -- gare a partire da una data, statistica annuale:
 --COPY (
-select r.name, r.title, r.km_length, r.ascending_meter, r.race_date, s.name, r.race_time, r.rank_global, r.rank_class, r.id from race as r
+select r.id, r.name, r.title, r.km_length, r.ascending_meter, r.race_date, s.name, r.race_time, r.rank_global, r.rank_class, r.id from race as r
 inner join race_subtype s on r.race_subtype_id = s.id
-where r.race_date > '2018-01-01' order by r.race_date asc 
+where r.race_date > '2019-01-01' order by r.race_date asc 
 --) TO 'D:\scratch\postgres\corsa\race-2018-02.csv' With CSV DELIMITER ';' HEADER; -- export in excel con COPY e TO
 -- Nota che excel interpreta questo export come ansi. Per l'utf-8, che è lo standard usato dall'export, vuole il BOM.
 -- Quindi con notepad++ o converto in ansi o converto in utf8-bom. Poi apro con excel.
 
--- delete from race where id = 245
+-- delete from race where id = 287 (usa questo delete per cancellare una corsa che risulta in conflitto nel db e poi ricaricala di nuovo con race_picker.rb)
 
 -- sommatorie km e Hm percorsi nell'anno
 select SUM(r.km_length) as Km_Tot, SUM(r.ascending_meter) as HM_Tot  from race as r
 inner join race_subtype s on r.race_subtype_id = s.id
-where r.race_date > '2018-01-01' 
+where r.race_date > '2022-01-01' 
 
 -- mostra tutti i tipi di gara (serve per poi vedere quale filtro usare sul tipo)
 SELECT * from race_subtype;
 -- Numero di ultra
 --select SUM(r.km_length) as Km_Tot, SUM(r.ascending_meter) as HM_Tot  from race as r
+-- Ultra sopra i cento km
 select r.name, r.title, r.km_length, r.ascending_meter as HM, r.race_date, s.name, r.race_time, r.rank_global from race as r
 inner join race_subtype s on r.race_subtype_id = s.id
 where
 (s.id = 5 OR s.id = 6) 
-AND r.km_length >= 100
+--AND r.km_length >= 100
 --AND r.race_date > '2017-01-01'
 order by r.race_date asc 
 
@@ -47,8 +49,8 @@ where
 --order by r.race_date asc 
 
 -- Numero di Maratone (id = 4)
-select SUM(r.km_length) as Km_Tot, SUM(r.ascending_meter) as HM_Tot  from race as r
---select r.name, r.title, r.km_length, r.ascending_meter as HM, r.race_date, s.name, r.race_time, r.rank_global, r.id from race as r
+--select SUM(r.km_length) as Km_Tot, SUM(r.ascending_meter) as HM_Tot  from race as r
+select r.name, r.title, r.km_length, r.ascending_meter as HM, r.race_date, s.name, r.race_time, r.rank_global, r.id from race as r
 inner join race_subtype s on r.race_subtype_id = s.id
 where
 (s.id = 4) 

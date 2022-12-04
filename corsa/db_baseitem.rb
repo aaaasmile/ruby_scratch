@@ -38,10 +38,14 @@ class DbConnectBase
   end
 
   def connect_to_local_db
+    # su WSL2 localhost non sembra funzionare.
+    # Si usa su WSL2 
+    # grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'
+    # che genera il seguente IP: 172.17.208.1
     @dbpg_conn = PG::Connection.open(:dbname => 'corsadb', 
                                     :user => 'corsa_user', 
                                     :password => 'corsa_user', 
-                                    :host => 'localhost', 
+                                    :host => '172.17.208.1', 
                                     :port => 5432)
     @log.debug "Connected to the db"
   end

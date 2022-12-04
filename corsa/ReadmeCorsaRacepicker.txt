@@ -1,7 +1,40 @@
-﻿== Race Picker
+== Race Picker
 Aggiornamento veloce:
-Apri WLC sotto windows con Ubuntu-20.04
-igors@Laptop-Toni:/mnt/d/Projects/GItHub/ruby_scratch/corsa$ ruby race_picker.rb
+Apri WSL sotto windows con Ubuntu-22.04
+igor@MiniToro:/mnt/d/Projects/GitHub/ruby_scratch/corsa$ ruby race_picker.rb
+
+== WSL2 e race_picker
+Non mi ricordo più perché in powershell lo script non funziona, ma ci sarà una ragione valida.
+In ogni modo su MiniToro uso Ubuntu-22.04.
+Non ha funzionato come sopra all'istante. La regione è che un localhost in windows,
+per esempio il db postgres, non è accessibile tramite WSL2.
+Per questo si usa, non localhost, ma l'IP del resolver. Il quale si legge in WSL2 con:
+grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'
+Poi va anche configurata una porta nel firewall di windows per ammettere la porta 5432.
+1)Launch Windows Defender Firewall with Advanced Security
+2)On the left pane select Incoming Rules.
+3)On the right pane click on New Rule.
+4)For the rule type select Port. Next.
+5)Select TCP and Specific local ports. Insert the port 5432
+6)Select Allow connection. Next.
+7)Check only the Public profile. Next.
+8)Enter a name for the rule: WSL postgres.
+
+Poi ho dovuto cambiare anche i seguenti files in C:\Program Files\PostgreSQL\15\data:
+postgresql.conf   (=> per avere i messaggi in inglese con lc_messages = 'English_United States.1252')
+pg_hba.conf       (=> per avere il collegamento da wsl2 con:  host   all all 172.17.0.0/0   scram-sha-256)
+
+Se nel database l'utente corsa_user non esiste o non ha accesso al db, esso va inserito
+usando la powershell:
+PS C:\Program Files\PostgreSQL\15\bin> .\createuser.exe --username=postgres --login -P corsa_user
+Che vuol dire: ci si collega con l'utente posgres, si crea un nuovo user corsa_user che 
+può effettuare dei login. Seguono le passwords (totale 3) per corsa_user e postgres.
+Siccome il Database corsadb l'ho creato usando l'utente postgres con restore di un backup,
+l'utente corsa_user non può fare nulla. Ho in SQL aggiunto queste 3 linee affinché lo 
+script race_picker sia funzionante. Tutte e 3 sono risultate necessarie:
+GRANT ALL PRIVILEGES ON DATABASE corsadb TO corsa_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO corsa_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO corsa_user;
 
 == Sommario
 race_picker.rb:
@@ -9,7 +42,7 @@ Script che uso per fare l'aggiornamento del mio db delle gare memorizzate sul si
 In questo modo non devo editare le gare due volte, ma solo sul sito Pentek.
 
 Lo script aggiorna il mio database posgres dove memorizzo i dati delle gare.
-Su WLC Ubuntu-20.04 ruby è già configurato con tutti i gem necessari.
+Su WSL Ubuntu-22.04 ruby è già configurato con tutti i gem necessari.
 Poi però git, se si cambia il codice o questo file, va usato con powershell o vscode.
 
 == Parametri
@@ -20,9 +53,13 @@ ruby race_picker.rb  "{:check_consistency => true, :insert_missed => false, :ins
 cambiando i paramteri è possibile fare gli inserimenti nel db. Comunque senza parametri inserisce solo le nuove corse,
 che poi è lo standard da usare.
 
+== Preparazione di Ruby in Ubuntu-22.04
+Questa sequenza ha funzionato senza problemi anche con Ubuntu 22.04 che mi ha installato ruby 3.0.
+igor@MiniToro:/mnt/d/Projects/GitHub/ruby_scratch/corsa$ ruby -v
+ruby 3.0.2p107 (2021-07-07 revision 0db68f0233) [x86_64-linux-gnu]
 
-== Preparazione di Ruby in Ubuntu-20.04
-Quindi si usa in Windows Ubuntu-20.04 che ha installato ruby 2.7. Ora mancano tutti i gems che installo facilmente con questa sequenza di comandi:
+Quindi si usa in Windows Ubuntu-22.04
+Ora mancano tutti i gems che installo facilmente con questa sequenza di comandi:
 sudo apt-get install ruby-dev
 sudo gem install mechanize
 sudo apt-get install libpq-dev
@@ -33,7 +70,10 @@ igors@Laptop-Toni:/mnt/d/Projects/GItHub/ruby_scratch/corsa$ ruby -v
 ruby 2.7.0p0 (2019-12-25 revision 647ee6f091) [x86_64-linux-gnu]
 
 == Database
-Usa il database postgres locale corsadb. Esso viene aggiornato da WLC.
+Usa il database postgres locale corsadb. Esso viene aggiornato da WSL.
+Il primo DB che ho usato è stato su postgres 9.0, poi su MiniToro sono passato a 15.0.
+Per il restore ho usato un backup che mi ha messo degli errori, ma che però alla fine
+ha funzionato.
 
 == Inconsistenze
 Se si cambia il nome di una gara sul sito "https://www.membersclub.at/ccmc_showprofile.php?unr=9671&show_tacho=1&pass=008"
@@ -47,8 +87,9 @@ Lo script non fa le modifiche, ma solo insert, quindi un record da modificare va
 configurato su insert_missed.
 
 == Problemi SSL
-Se ci sono problemi di certificati, per prima cose vedere se curl funziona. Poi vedi di aggiornare il sistema e i suoi certificati.
-Alla peggio bisogna aggiornare l'Ubuntu in  WLC e ruby.
+Se ci sono problemi di certificati, per prima cose vedere se curl funziona. 
+Poi vedi di aggiornare il sistema e i suoi certificati.
+Alla peggio bisogna aggiornare l'Ubuntu in  WSL e ruby.
 
 == OLD
 
