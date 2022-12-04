@@ -75,6 +75,9 @@ Il primo DB che ho usato è stato su postgres 9.0, poi su MiniToro sono passato 
 Per il restore ho usato un backup che mi ha messo degli errori, ma che però alla fine
 ha funzionato.
 
+Per provare la connessione ho creato un piccolo progetto in golang che si può 
+eseguire in windows o in WSL2 per vedere se la connessione al database pg funziona.
+
 == Inconsistenze
 Se si cambia il nome di una gara sul sito "https://www.membersclub.at/ccmc_showprofile.php?unr=9671&show_tacho=1&pass=008"
 succede che i nomi nel db non sono più consistenti. Allora si cambiano i dati nel db.
