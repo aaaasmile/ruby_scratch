@@ -23,11 +23,11 @@ where r.race_date >= '2016-01-01' AND  r.race_date <= '2016-12-31'
 SELECT * from race_subtype;
 -- Numero di ultra
 --select SUM(r.km_length) as Km_Tot, SUM(r.ascending_meter) as HM_Tot  from race as r
--- Ultra sopra i cento km
+-- Ultra sopra i cento km, oppure solo Ultra se togli > 100
 select r.name, r.title, r.km_length, r.ascending_meter as HM, r.race_date, s.name, r.race_time, r.rank_global from race as r
 inner join race_subtype s on r.race_subtype_id = s.id
 where
-(s.id = 5 OR s.id = 6) 
+((s.id = 5) OR (s.id = 6) OR (s.id = 9))
 AND r.km_length > 100
 --AND r.race_date > '2017-01-01'
 order by r.race_date asc 
@@ -125,3 +125,10 @@ where rd.race_id = 249
 --select 205.156 - 109 
 -- delete from racelap_detail
 select * from race
+
+-- Backyard
+select r.name, r.title, r.km_length, r.race_time, r.id, r.race_date from race as r
+inner join race_subtype s on r.race_subtype_id = s.id
+where
+(s.id = 9)
+order by r.race_date asc 

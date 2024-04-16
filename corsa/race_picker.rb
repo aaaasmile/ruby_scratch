@@ -39,11 +39,15 @@ class RaceItem < DbBaseItem
     if @title =~ /Duathlon/
       @sport_type_id = 1
     end
+    if @title =~ /Backyard/
+      @race_subtype_id = 9
+    end
   end
   
   def km_length=(kl)
     @km_length = kl.gsub("k","").to_f
     @meter_length = (@km_length * 1000).to_i 
+    return if @race_subtype_id == 9
     if @ascending_meter > 300 and @meter_length != 42195 
       @race_subtype_id = 1
       if @meter_length > 10999 and @meter_length < 42195 
