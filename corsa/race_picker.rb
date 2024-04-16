@@ -260,9 +260,11 @@ if $0 == __FILE__
   include Log4r
   @log = Log4r::Logger.new("RacePicker")
   Log4r::Logger['RacePicker'].outputters << Outputter.stdout
+  settings = YAML.load_file('credential.yaml')
 
   url = "https://www.membersclub.at/ccmc_showprofile.php?unr=9671&show_tacho=1&pass=008"
   picker = RacePicker.new
+  picker.connect_to_local_db(settings[:user], settings[:password])
 
   check_consistency = false
   insert_new_races = true

@@ -7,7 +7,7 @@
 --COPY (
 select r.id, r.name, r.title, r.km_length, r.ascending_meter, r.race_date, s.name, r.race_time, r.rank_global, r.rank_class, r.id from race as r
 inner join race_subtype s on r.race_subtype_id = s.id
-where r.race_date > '2022-01-01' order by r.race_date asc 
+where r.race_date > '2012-01-01' order by r.race_date asc 
 --) TO 'D:\scratch\postgres\corsa\race-2018-02.csv' With CSV DELIMITER ';' HEADER; -- export in excel con COPY e TO
 -- Nota che excel interpreta questo export come ansi. Per l'utf-8, che è lo standard usato dall'export, vuole il BOM.
 -- Quindi con notepad++ o converto in ansi o converto in utf8-bom. Poi apro con excel.
@@ -28,7 +28,7 @@ select r.name, r.title, r.km_length, r.ascending_meter as HM, r.race_date, s.nam
 inner join race_subtype s on r.race_subtype_id = s.id
 where
 (s.id = 5 OR s.id = 6) 
---AND r.km_length >= 100
+AND r.km_length > 100
 --AND r.race_date > '2017-01-01'
 order by r.race_date asc 
 
@@ -45,7 +45,8 @@ select SUM(r.km_length) as Km_Tot, SUM(r.ascending_meter) as HM_Tot  from race a
 --select r.name, r.title, r.km_length, r.ascending_meter as HM, r.race_date, s.name, r.race_time, r.rank_global from race as r
 inner join race_subtype s on r.race_subtype_id = s.id
 where
-(s.id = 6) 
+--(s.id = 6) 
+(s.id = 5 OR s.id = 6) 
 --order by r.race_date asc 
 
 -- Numero di Maratone (id = 4)

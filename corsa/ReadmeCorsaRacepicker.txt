@@ -38,6 +38,48 @@ GRANT ALL PRIVILEGES ON DATABASE corsadb TO corsa_user;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO corsa_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO corsa_user;
 
+== mini-k7
+
+== Restore del db
+Con il nuovo sistema mini-k7 mi trovo di nuovo senza db. Ho installato pg su wsl2 e basta. 
+Interessante il fatto che se cerco pg tra le app di windows, mi salta fuori pg-admin 4 con 
+il simbolo di Linux. Parte senza problemi direttamente da Windows Start. In backround gira 
+WSL Ubuntu con l'utente igor@mini-k7. Come faccio ad effettuare il restore del db che ho creato con pgdump?
+Per prima cosa creo il db a linea di comando in WSL: 
+createdb -T template0 corsadb
+Ora vediamo di fare il restore:
+cd /mnt/d/Projects/github/ruby_scratch/corsa/backup
+Occorre l'utente corsa_user. Come si inserisce?
+
+	createuser --username=igor --login -P  corsa_user
+Ora provo il restore
+
+	pg_restore -d corsadb --clean --create ./backup_PG15_06_20221204.sql
+Ricevo la solita fila d'errori, ma database corsadb sembra ripristinato.
+Poi in pgAdmin ho aperto il database e sulla tabella race ho lanciato il query tool. 
+Qui ho copiato le tre righe di GRANT riportate sopra per l'utente corsa_user e l'ho poi lanciato.
+A questo punto sono in grado di usare il file SQL per le statistiche, come il numero delle maratone efettuate,
+usando il file statistiche.sql che si trova su D:\Projects\github\ruby_scratch\corsa.
+
+== Ruby
+Uso rbenv che mi consente di usare una miriade di versioni ruby. Le versioni che ho installato sono visibili con:
+rbenv versions
+Uso la 3.2.0 con 
+rbenv local 3.2.0
+Quindi ora ho:
+ruby -v
+ruby 3.2.0 (2022-12-25 revision a528908271) [x86_64-linux]
+
+Per fare andare ruby_picker.rb ho bisogno dei seguenti gems:
+gem install mechanize
+gem install pg
+gem install log4r
+Cambio il file .ruby-version per avere la versione 3.2.0
+Ora posso provare con
+
+	ruby race_picker.rb
+Nota che le credential del database le ho messe nel file credential.yaml
+
 == Sommario
 race_picker.rb:
 Script che uso per fare l'aggiornamento del mio db delle gare memorizzate sul sito pentek
