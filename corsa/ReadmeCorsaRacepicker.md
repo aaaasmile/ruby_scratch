@@ -1,7 +1,7 @@
 # Race Picker
 Aggiornamento veloce:
-Apri WSL sotto windows con Ubuntu-22.04
-igor@MiniToro:/mnt/d/Projects/GitHub/ruby_scratch/corsa$ ruby race_picker.rb
+Apri WSL mini-k7 sotto windows con Ubuntu-22.04
+igor@mini-k7:/mnt/d/Projects/github/ruby_scratch/corsa$ ruby race_picker.rb
 
 ## mini-k7
 
@@ -56,11 +56,18 @@ Ora posso provare con
 	ruby race_picker.rb
 Nota che le credential del database le ho messe nel file credential.yaml
 
+## MiniToro
+Ho ancora sul mio mini-k7 un'instanza di UbuntuMinitoro. Questa, però, non ha il database
+Postgres installato, quindi il race picker non può funzionare.
+Il race picker funziona solo su Ubuntu  mini-k7.
+
 ## Quando il DB era su Windows
+In questa sezione ho messo le info per usare ruby su WSL mentre il database era su Windows.
+Una combinazione che non uso più. Ora ho ruby e postgres su ubuntu.
 
 ### WSL2 e race_picker
 Non mi ricordo più perché in powershell lo script non funziona, ma ci sarà una ragione valida.
-In ogni modo su MiniToro uso Ubuntu-22.04.
+In ogni modo su mini-k7 uso Ubuntu-22.04.5 LTS
 Non ha funzionato come sopra all'istante. La regione è che un localhost in windows,
 per esempio il db postgres, non è accessibile tramite WSL2.
 Per questo si usa, non localhost, ma l'IP del resolver. Il quale si legge in WSL2 con:
